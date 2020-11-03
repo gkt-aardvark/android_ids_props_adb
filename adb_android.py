@@ -11,6 +11,15 @@ if not os.path.exists(logfile):
     with open(logfile, 'w') as f:
         f.write('Log Entries for ADB data pull:\n')
 
+def device_present():
+    '''let's just see if there's a phone on adb'''
+    try:
+        check_output('adb shell getprop', shell=True).decode('ascii')
+        return True   
+    except Exception as e:
+        print (e)
+        return False
+
 def logentry (entry):
     '''yeah, yeah, yeah, whatever'''
     current_time = dt.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -48,9 +57,9 @@ def get_ids():
         elif val.startswith('+'):
             ids.update({'Voicemail': val})
         elif len(val) == 15 and (val.startswith('35') \
-                                or val.startswith('99') \
-                                or val.startswith('86') \
-                                or val.startswith('01')):
+                            or val.startswith('99') \
+                            or val.startswith('86') \
+                            or val.startswith('01')):
             ids.update({'IMEI': val})
         elif len(val) == 15:
             ids.update({'IMSI': val})
@@ -87,7 +96,9 @@ def get_prop():
     return props
 
 if __name__ == '__main__':
-    ids = get_ids()
-    print ('\n'.join([f'{key}: {ids.get(key)}' for key in ids]))
-    props = get_prop()
-    print ('\n'.join([f'{key}: {props.get(key)}' for key in props]))
+    #this part is just running the various functions and printing their values
+    if device_present():
+        ids = get_ids()
+        print ('\n'.join([f'{key}: {ids.get(key)}' for key in ids]))
+        props = get_prop()
+        print ('\n'.join([f'{key}: {props.get(key)}' for key in props]))
